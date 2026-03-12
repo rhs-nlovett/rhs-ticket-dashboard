@@ -1,6 +1,7 @@
 body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; margin: 0; }
 header { background: #0073ea; color: white; padding: 1rem; text-align: center; }
 
+
 .kanban-container {
     display: flex;
     justify-content: space-around;
