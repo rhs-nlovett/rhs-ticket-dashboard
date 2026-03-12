@@ -1,6 +1,6 @@
 .dashboard-header {
   text-align: center;
-  margin-bottom: 1em; /* Creates breathing room above the grid */
+  margin-bottom: 0.5em; /* Creates breathing room above the grid */
   width: 100%;
 }
 
@@ -37,7 +37,7 @@ body {
   color: var(--text-main);
   font-family: 'Outfit', sans-serif;
   margin: 0;
-  padding: 2rem;
+  padding: 0;
   min-height: 100vh;
 }
 
@@ -48,7 +48,7 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
-  padding: 1.5rem;
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
