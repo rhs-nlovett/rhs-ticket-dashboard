@@ -159,4 +159,7 @@ function getListSelectorByBoard(boardId) {
     return null;
 }
 
-fetchTickets();
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM is ready, script is running!");
+    fetchTickets();
+});
