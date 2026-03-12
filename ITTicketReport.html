@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <meta name="viewport" content="width=device-width, initial-scale=0.4">
     <title>Monday.com Kanban Board Report</title>
     <link rel="stylesheet" href="report.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -64,10 +64,18 @@
     <div class="chart-container"><canvas id="userBar"></canvas></div>
     </div>
 
+    <div class="bento-panel frequent-topics-panel">
+        <h3>Frequent Topics</h3>
+        <div class="chart-container" id="wordcloud-wrapper">
+            <canvas id="topicCloudCanvas"></canvas>
+        </div>
+    </div>
+
     </div>
     
     <script src="report.script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
 </body>
 </html>

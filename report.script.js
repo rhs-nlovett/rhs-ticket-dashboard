@@ -1,4 +1,104 @@
-let slaChart, statusChart, locationChart, urgencyChart, userChart;
+let slaChart, statusChart, locationChart, urgencyChart, userChart, wordCloudChart;
+
+const stopWords = new Set([
+    'I',
+    'the',
+    'and', 
+    'is', 
+    'in', 
+    'to', 
+    'of', 
+    'for', 
+    'on', 
+    'with', 
+    'a', 
+    'by', 
+    'this', 
+    'that',
+    'it',
+    'from',
+    'as',
+    'are',
+    'was',
+    'be',
+    'at',
+    'or',
+    'an',
+    'if',
+    'not',
+    'have',
+    'has',
+    'but',
+    'they',
+    'their',
+    'my',
+    'me',
+    'we',
+    'you',
+    'he',
+    'she',
+    'his',
+    'her',
+    'its',
+    'them',
+    'what',
+    'who',
+    'when',
+    'where',
+    'why',
+    'how',
+    'all',
+    'any',
+    'do',
+    'does',
+    'did',
+    'so',
+    'up',
+    'out',
+    'about',
+    'into',
+    'over',
+    'after',
+    'before',
+    'between',
+    'under',
+    'again',
+    'further',
+    'then',
+    'once',
+    'here',
+    'can',
+    'will',
+    'just',
+    'should',
+    'could',
+    'would',
+    'may',
+    'might',
+    'must',
+    'also',
+    'get',
+    'got',
+    'like',
+    'know',
+    'see',
+    'need',
+    'want',
+    'use',
+    'used',
+    'using',
+    'make',
+    'made',
+    'go',
+    'our',
+    'been',
+    'who',
+    'whom',
+    'am',
+    'able',
+    'about',
+    'above'
+]);
 
 const TICKET_BOARDS = {
     'Maintenance' : '9297700869',
@@ -11,6 +111,34 @@ const STATUS_COLORS = {
     'In Progress': '#38bdf8', // Neon Blue
     'Overdue': '#f43f5e',    // Neon Red
     'Not Started': '#64748b'  // Slate Gray
+};
+
+const LOCATION_COLORS = {
+    'CCPC': '#162be9ff',
+    'FHC': '#2dd4bf',
+    'MJWCHC': '#fb923c',
+    'WCC': '#c8eb78ff',
+    'STORAGE': '#96a09cff',
+    'Other': '#caf566ff'
+};
+
+const DEFAULT_PALETTE = [
+    '#000000ff', '#ffffffff', '#6619b3ff', '#043d19ff', '#5b8fd3ff'
+];
+
+const LOCATION_MAP = {
+    'CCPC': 'CCPC',
+    'CLYBURN CENTER FOR PRIMARY CARE': 'CCPC',
+    
+    'FHC': 'FHC',
+    'FAMILY HEALTH CARE': 'FHC',
+    
+    'MJW': 'MJWCHC',
+    'MJWCHC': 'MJWCHC',
+    'MARGARET J WESTON COMMUNITY HEALTH CENTER': 'MJWCHC',
+    
+    'WCC': "WCC",
+    "WOMEN'S AND CHILDREN'S CENTER": "WCC"
 };
 
 const DEFAULT_STATUS_COLOR = '#94a3b8';
@@ -45,14 +173,14 @@ function setupCharts(boardName) {
         maintainAspectRatio: false,
         cutout: '0%', // Thicker slices look better when the chart is larger
         layout: {
-            padding: 20
+            padding: 10
         },
         plugins: {
             legend: {
                 position: 'right', // Moving to the right frees up vertical space for a larger circle
                 labels: { 
-                    boxWidth: 8, 
-                    font: { size: 10 }, 
+                    boxWidth: 12, 
+                    font: { size: 14 }, 
                     color: '#94a3b8' 
                 }
             },
@@ -123,13 +251,37 @@ function setupCharts(boardName) {
             datasets: [{
                 label: 'Tickets',
                 data: [], // Replace with dynamic data
-                backgroundColor: 'rgba(56, 189, 248, 0.2)', // Glassy blue
-                borderColor: '#38bdf8', // Neon blue border
+                color: '#ffffff',
+                backgroundColor: [
+                    '#34d399', // Green for Low
+                    '#38bdf8', // Blue for Medium
+                    '#fb923c', // Orange for High
+                    '#f43f5e'  // Red for Critical
+                ],
+                borderColor: '#ffffffff', // Neon blue border
                 borderWidth: 2,
                 borderRadius: 8
             }]
         },
         options: {
+            plugins: {
+                datalabels: {
+                    display: true,
+                    color: '#ffffff', // This makes the number over the bar pure white
+                    anchor: 'end',
+                    align: 'top',
+                    offset: 4, // Adds a tiny bit of breathing room above the bar
+                    font: {
+                        family: "'Outfit', sans-serif",
+                        weight: '700',
+                        size: 14
+                    },
+                    formatter: (value) => {
+                        // Returns the value as is (the ticket count)
+                        return value; 
+                    }
+                }
+            },
             layout: {
                 padding: {
                     bottom: 20, // Adds space below the X-axis labels
@@ -138,7 +290,7 @@ function setupCharts(boardName) {
                     top: 0
                 }
             },
-        scales: {
+            scales: {
                 x: {
                     grid: { display: false },
                     ticks: {
@@ -149,7 +301,7 @@ function setupCharts(boardName) {
                 y: {
                     beginAtZero: true,
                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: { color: '#94a3b8' }
+                    ticks: { color: '#ffffffff' }
                 }
             }
         }
@@ -256,6 +408,69 @@ function setupCharts(boardName) {
         data: locationData, // from previous step
         options: pieOptions
     });
+
+    const wordCloudCtx = document.getElementById('topicCloudCanvas').getContext('2d');
+    /*wordCloudChart = new Chart(wordCloudCtx, {
+        type: 'wordCloud',
+        data: {
+            labels: ['Server', 'Login', 'Printer', 'VPN'],
+            datasets: [{
+            data: [90, 80, 45, 30], // Your counts
+            color: ['#38bdf8', '#c084fc', '#34d399', '#fb923c'], // Neon colors
+            rotate: [0, 90, 0, 90] // This is how you set the rotation!
+            }]
+        },
+        options: {
+            plugins: {
+            wordCloud: {
+                fontFamily: 'Outfit',
+                minRotation: 0,
+                maxRotation: 90,
+                rotationSteps: 2, // Only allows 0 or 90 degrees
+            }
+            }
+        }
+    });*/
+}
+
+function updateWordCloud(wordCounts) {
+    const canvas = document.getElementById('topicCloudCanvas');
+    const container = document.getElementById('wordcloud-wrapper');
+
+    // 1. Manually set canvas size to match the container
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+
+    // 2. Format data for Wordcloud2: [['word', count], ['word', count]]
+    const list = Object.entries(wordCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 25); // Top 25 words
+
+    if (list.length === 0) return;
+
+    // 3. Configure the Cloud
+    WordCloud(canvas, {
+        list: list,
+        fontFamily: "'Outfit', sans-serif",
+        fontWeight: '700',
+        color: function() {
+            // Randomly pick from your dashboard's neon palette
+            const colors = ['#38bdf8', '#c084fc', '#34d399', '#fb923c', '#f43f5e'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        },
+        backgroundColor: 'transparent',
+        // Scaling: Adjust '15' if words are too big or too small
+        weightFactor: function (size) {
+            return (size * 1) * (canvas.width / 400); 
+        },
+        rotateRatio: 0.3, // 30% of words will rotate
+        rotationSteps: 2, // Only 0 and 90 degrees
+        minRotation: 0,
+        maxRotation: Math.PI / 2, // 90 degrees
+        gridSize: 8,
+        drawOutOfBound: false, // Keeps words inside the panel
+        shuffle: true
+    });
 }
 
 function getStatusDataFromItems(items) {
@@ -338,10 +553,12 @@ function displayReportData(board, items) {
     items.forEach(item => {
         // Find specific columns by ID (adjust IDs based on your board)
         const status = item.column_values.find(c => c.id === 'status')?.text;
-        const location = item.column_values.find(c => c.id === 'text_mksqdbpj' || c.id === 'text_mksqkeep')?.text;
+        const rawLocation = item.column_values.find(c => c.id === 'text_mksqdbpj' || c.id === 'text_mksqkeep')?.text;
         const priority = item.column_values.find(c => c.id === 'color_mkrkm2dp' || c.id === 'color_mkrkm2dp')?.text;
         const ticketOwner = item.column_values.find(c => c.id === 'text_mkrnfa7t' || c.id === 'text_mkrncnb3')?.text;
         const slaStatus = item.column_values.find(c => c.id === 'formula_mksg49hc' || c.id === 'formula_mksg3n2f')?.display_value;
+        //const title = item.column_values.find(c => c.id === 'text_mkrk14cd')?.text;
+        //const description = item.column_values.find(c => c.id === 'long_text_mkrkk7a')?.text;
 
         // 1. Counters for KPIs
         if (status === 'Done') stats.completed++;
@@ -354,8 +571,14 @@ function displayReportData(board, items) {
         }
 
         // Do the same for Location if needed
-        if (location && location.trim() !== "") {
-            stats.locationCounts[location] = (stats.locationCounts[location] || 0) + 1;
+        //let rawLocation = item.column_values.find(c => c.id === 'text_mksqdbpj' || c.id === 'text_mksqkeep')?.text;
+
+        if (rawLocation && rawLocation.trim() !== "") {
+            // 2. Normalize: Check if we have a mapped name, otherwise use raw uppercase
+            const normalizedLocation = LOCATION_MAP[rawLocation.toUpperCase().trim()] || rawLocation;
+
+            // 3. Increment the count
+            stats.locationCounts[normalizedLocation] = (stats.locationCounts[normalizedLocation] || 0) + 1;
         }
 
         // 2. Grouping for Charts
@@ -379,8 +602,20 @@ function displayReportData(board, items) {
     statusChart.update();
 
     // --- 3. UPDATE LOCATION PIE ---
-    locationChart.data.labels = Object.keys(stats.locationCounts);
-    locationChart.data.datasets[0].data = Object.values(stats.locationCounts);
+    const locLabels = Object.keys(stats.locationCounts);
+    const locDataValues = Object.values(stats.locationCounts);
+
+    const locColors = locLabels.map((label, index) => {
+        // 1. Check if we have a hardcoded color for this specific facility
+        if (LOCATION_COLORS[label]) return LOCATION_COLORS[label];
+        
+        // 2. Otherwise, pick from the backup palette using index to prevent duplicates
+        return DEFAULT_PALETTE[index % DEFAULT_PALETTE.length];
+    });
+
+    locationChart.data.labels = locLabels;
+    locationChart.data.datasets[0].data = locDataValues;
+    locationChart.data.datasets[0].backgroundColor = locColors;
     locationChart.update();
 
     // --- 4. UPDATE URGENCY BAR ---
@@ -409,6 +644,24 @@ function displayReportData(board, items) {
     userChart.data.labels = userLabels;
     userChart.data.datasets[0].data = userData;
     userChart.update();
+
+    let wordCounts = {};
+    items.forEach(item => {
+        const title = item.column_values.find(c => c.id === 'text_mkrk14cd')?.text || '';
+        const description = item.column_values.find(c => c.id === 'long_text_mkrkk7a')?.text || '';
+        const combinedText = `${title} ${description}`.toLowerCase();
+
+        //Ignore common stop words (you can expand this list as needed)
+
+        // Split the combined text into words and update counts
+        combinedText.split(/\s+/).forEach(word => {
+            if (!stopWords.has(word)) {
+                wordCounts[word] = (wordCounts[word] || 0) + 1;
+            }
+        });
+    });
+
+    updateWordCloud(wordCounts);
 
     // Update the KPI numbers
     document.getElementById('open-count').innerText = stats.open;
@@ -472,4 +725,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupCharts(boardName);
     fetchTickets(boardName);
+});
+
+window.addEventListener('resize', () => {
+    // Re-run the word cloud update when window changes size
+    if (currentWordCounts) { 
+        updateWordCloud(currentWordCounts); 
+    }
 });
