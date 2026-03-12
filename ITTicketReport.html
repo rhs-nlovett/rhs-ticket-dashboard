@@ -5,32 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.6">
     <title>Monday.com Kanban Board Report</title>
     <link rel="stylesheet" href="report.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>RHS Ticketing Report</h1>
+    <header class="dashboard-header">
+        <h1 id="dashboard-header-text"></h1>
     </header>
     
-    <div class="dashboard-container">
-    <header class="kpi-row">
-        <div class="card kpi"><h3>Open</h3><p id="open-count">0</p></div>
-        <div class="card kpi"><h3>In Progress</h3><p id="progress-count">0</p></div>
-        <div class="card kpi overdue"><h3>Overdue</h3><p id="overdue-count">0</p></div>
-        <div class="card kpi"><h3>Completed</h3><p id="completed-count">0</p></div>
-    </header>
+    <div class="dashboard-wrapper">
+    
+    <div class="bento-panel kpi-cluster">
+        <div class="kpi-glass neon-blue">
+        <span>Open</span><h2 id="open-count">0</h2>
+        </div>
+        <div class="kpi-glass neon-purple">
+        <span>In Progress</span><h2 id="progress-count">0</h2>
+        </div>
+        <div class="kpi-glass neon-red pulse">
+        <span>Overdue</span><h2 id="overdue-count">0</h2>
+        </div>
+        <div class="kpi-glass neon-green">
+        <span>Completed</span><h2 id="completed-count">0</h2>
+        </div>
+    </div>
 
-    <section class="chart-row">
-        <div class="card"><canvas id="slaDonut"></canvas></div>
-        <div class="card"><canvas id="statusPie"></canvas></div>
-        <div class="card"><canvas id="locationPie"></canvas></div>
-    </section>
+    <div class="bento-panel hero-chart">
+    <h3>On-Time Performance %</h3>
+    <div class="chart-container">
+        <canvas id="slaDonut"></canvas>
+        <div class="donut-overlay">
+        <span id="sla-value">100%</span>
+        <span class="sla-label">ON TIME OVERALL</span>
+        </div>
+    </div>
+    </div>
 
-    <section class="chart-row">
-        <div class="card"><canvas id="urgencyBar"></canvas></div>
-        <div class="card"><canvas id="userBar"></canvas></div>
-    </section>
+    <div class="bento-panel small-chart status-panel">
+    <h3>Status Breakdown</h3>
+    <div class="chart-container">
+        <canvas id="statusPie"></canvas>
+    </div>
+    </div>
+    
+    <div class="bento-panel small-chart location-panel">
+    <h3>Tickets by Location</h3>
+    <div class="chart-container">
+        <canvas id="locationPie"></canvas>
+    </div>
+    </div>
+
+    <div class="bento-panel urgency-bar-panel">
+    <h3>Ticket Urgency</h3>
+    <div class="chart-container"><canvas id="urgencyBar"></canvas></div>
+    </div>
+
+    <div class="bento-panel user-bar-panel">
+    <h3 id="dashboard-top-requestor-text">Top Requesters</h3>
+    <div class="chart-container"><canvas id="userBar"></canvas></div>
+    </div>
+
     </div>
     
     <script src="report.script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </body>
 </html>
