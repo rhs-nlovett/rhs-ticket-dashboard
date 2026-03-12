@@ -1,0 +1,240 @@
+body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; margin: 0; }
+header { background: #0073ea; color: white; padding: 1rem; text-align: center; }
+
+.kanban-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    gap: 20px;
+}
+
+.column {
+    background: #ebedef;
+    border-radius: 8px;
+    width: 30%;
+    min-height: 80vh;
+    padding: 10px;
+
+    height: 80vh; 
+    overflow: hidden; /* This acts as the window */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.column h2 {
+    position: sticky;
+    top: 0;
+    z-index: 10; /* Keeps header above the cards */
+    background: #ebedef; /* Must match column background to hide cards */
+    margin: 0;
+    padding: 15px;
+    text-align: center;
+    border-bottom: 2px solid #ccc;
+}
+
+.column::before {
+    content: '';
+    position: absolute;
+    top: 50px; /* Adjust based on your H2 height */
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to bottom, #ebedef, transparent);
+    z-index: 5;
+    pointer-events: none; /* Allows you to still click cards underneath */
+}
+
+/*.column h2 { text-align: center; color: #333; border-bottom: 2px solid #ccc; padding-bottom: 10px; }*/
+
+/*.ticket-card {
+    background: white;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 5px solid #0073ea;
+}*/
+
+.ticket-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* This creates the consistent vertical gap */
+    padding: 5px;
+
+    /*display: flex;
+    flex-direction: column;
+    gap: 16px;*/
+    padding: 10px;
+    position: relative;
+    z-index: 1;
+    
+    /* Animation settings */
+    animation: ticker-scroll 20s linear infinite;
+}
+
+/* 2. Enhanced Description Font */
+.ticket-card .desc {
+    font-size: 1.1rem; /* Increased from 0.88rem */
+    line-height: 1.6;
+    color: #4a5568; 
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.ticket-card h4 { margin: 0 0 5px 0; }
+.ticket-card p { font-size: 0.9rem; color: #666; }
+
+/* Card Container Adjustments */
+.ticket-card {
+    position: relative;
+    overflow: hidden;
+    background: white;
+    border-radius: 10px; /* Increased from 8px */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+    border: 1px solid #e1e4e8;
+    width: 95%; /* Ensuring it fills the column nicely */
+    margin: 0 auto;
+}
+
+.ticket-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.card-content { padding: 19px; }
+
+/* The "Pop" - Urgency Badges */
+.urgency-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 25px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+/* Color Mapping for Urgency */
+/* Replace 'critical', 'high', etc., with the exact text from your Monday.com status */
+
+.urgency-badge.critical, .urgency-banner.critical { background-color: #ff1744; color: white; }
+.urgency-badge.high, .urgency-banner.high { background-color: #ff9100; color: white; }
+.urgency-badge.medium, .urgency-banner.medium { background-color: #2979ff; color: white; }
+.urgency-badge.low, .urgency-banner.low { background-color: #00e676; color: white; }
+
+/* Side Accent Bar */
+.urgency-banner {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+}
+
+/* Location and Title Styling */
+.location-tag {
+    font-size: 1rem; /* Increased from 0.8rem */
+    color: #607d8b;
+    margin: 6px 0;
+}
+
+h4 {
+    margin: 6px 0;
+    font-size: 1.3rem;
+    color: #1c1c1c;
+    line-height: 1.4;
+}
+
+/* Only for Critical tickets */
+.ticket-card:has(.critical) {
+    border: 1px solid #ff1744;
+    box-shadow: 0 0 10px rgba(255, 23, 68, 0.2);
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0px rgba(255, 23, 68, 0.4); }
+    100% { box-shadow: 0 0 0 8px rgba(255, 23, 68, 0); }
+}
+
+.urgency-badge.critical {
+    animation: pulse-red 2s infinite;
+}
+
+.urgency-banner {
+    width: 8px; /* Slightly thicker accent bar */
+}
+
+.card-footer small {
+    font-size: 0.85rem; /* Scaled up */
+}
+
+/* The container that hides the overflow */
+.column {
+    height: 80vh; /* Fixed height is required for scrolling */
+    overflow: hidden; 
+    position: relative;
+
+    flex: 1; /* Allows columns to grow equally */
+    min-width: 350px; /* Prevents columns from getting too skinny */
+    height: 85vh;
+}
+
+
+/* Pause scroll on hover so users can read/click */
+.column:hover .ticket-list {
+    animation-play-state: paused;
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+}
+
+.kanban-container {
+    display: flex;
+    justify-content: center;
+    padding: 25px;
+    gap: 30px; /* Increased gap between columns */
+    max-width: 1800px; /* Adjust based on your screen size */
+    margin: 0 auto;
+}
+
+/* The 'Window' that hides the overflow */
+.kanban-viewport {
+    height: 85vh;
+    overflow: hidden;
+    position: relative;
+    margin-top: 20px;
+}
+
+/* The actual moving element */
+.kanban-stage {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    animation: synchronized-scroll 25s linear infinite;
+}
+
+/* Pause everything when any part of the board is hovered */
+.kanban-viewport:hover .kanban-stage {
+    animation-play-state: paused;
+}
+
+.column {
+    flex: 1;
+    min-width: 400px;
+    background: #ebedef;
+    border-radius: 12px;
+    /* Important: columns must not have their own scroll/overflow now */
+}
+
+/* The Animation */
+@keyframes synchronized-scroll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+}
