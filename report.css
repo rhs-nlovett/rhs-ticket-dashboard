@@ -156,7 +156,7 @@ body {
 .user-bar-panel { 
   grid-column: span 3; 
   /* If 240px isn't enough, we can force these to span 1.5 rows or set a min-height */
-  min-height: 350px; 
+  min-height: 280px; 
   display: flex;
   flex-direction: column;
   grid-row: span 1; 
@@ -166,7 +166,7 @@ body {
 .urgency-bar-panel { 
   grid-column: span 7; /* Increased from 5 to 7 (70% width) */
   grid-row: span 1; 
-  min-height: 350px; /* Extra height to prevent cutoff */
+  min-height: 280px; /* Extra height to prevent cutoff */
 }
 
 .small-chart {
