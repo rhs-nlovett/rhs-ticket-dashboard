@@ -1,0 +1,24 @@
+.dashboard-container {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f5f6f8;
+  font-family: 'Roboto', sans-serif;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1-fr);
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  text-align: center;
+}
+
+.overdue h3 { color: #e44258; } /* monday.com red */
+canvas { max-height: 300px; }
