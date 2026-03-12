@@ -1,6 +1,6 @@
 .dashboard-header {
   text-align: center;
-  margin-bottom: 2.5rem; /* Creates breathing room above the grid */
+  margin-bottom: 1em; /* Creates breathing room above the grid */
   width: 100%;
 }
 
@@ -223,7 +223,7 @@ body {
 .cloud-word.vertical {
     writing-mode: vertical-rl; /* This keeps the text readable vertically */
     transform: rotate(180deg); /* Flips it to read bottom-to-top, optional */
-    margin: 0 5px;
+    margin: 0 0px;
 }
 
 .word-cloud-container {
