@@ -9,7 +9,7 @@ async function fetchTickets() {
         boards (ids: [${TICKET_BOARDS['Maintenance']}, ${TICKET_BOARDS['IT']}, ${TICKET_BOARDS['Pending']}]) {
             id
             name
-            items_page {
+            items_page (limit: 500) {
                 items {
                     id
                     name
