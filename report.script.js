@@ -284,10 +284,10 @@ function setupCharts(boardName) {
             },
             layout: {
                 padding: {
-                    bottom: 20, // Adds space below the X-axis labels
-                    left: 10,
-                    right: 10,
-                    top: 0
+                            top: 30,    // Increase this until the label is fully visible
+                            bottom: 20, 
+                            left: 10,
+                            right: 10
                 }
             },
             scales: {
