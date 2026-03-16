@@ -8,6 +8,7 @@ const workingHours = {
 
 const stopWords = new Set([
     'I',
+    'i',
     'the',
     'and', 
     'is', 
@@ -103,7 +104,29 @@ const stopWords = new Set([
     'am',
     'able',
     'about',
-    'above'
+    'above',
+    'after',
+    'again',
+    'against',
+    'all',
+    'any',
+    'because',
+    'been',
+    'before',
+    'being',
+    'below',
+    'between',
+    'both',
+    'but',
+    'by',
+    'could',
+    'did',
+    'do',
+    'does',
+    'doing',
+    'down',
+    'during',
+    'each',
 ]);
 
 const TICKET_BOARDS = {
