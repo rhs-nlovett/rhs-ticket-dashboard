@@ -1,4 +1,10 @@
-let slaChart, statusChart, locationChart, urgencyChart, userChart, wordCloudChart;
+let slaChart, statusChart, locationChart, urgencyChart, userChart, wordCloudChart, wordCounts;
+
+const workingHours = {
+    start: 15, // 7 AM
+    end: 18,   // 6 PM
+    daysOfTheWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] // Monday to Friday
+}
 
 const stopWords = new Set([
     'I',
@@ -249,7 +255,7 @@ function setupCharts(boardName) {
         data: {
             labels: ['Low', 'Medium', 'High', 'Critical'],
             datasets: [{
-                label: 'Tickets',
+                label: '',
                 data: [], // Replace with dynamic data
                 color: '#ffffff',
                 backgroundColor: [
@@ -645,7 +651,7 @@ function displayReportData(board, items) {
     userChart.data.datasets[0].data = userData;
     userChart.update();
 
-    let wordCounts = {};
+    wordCounts = {};
     items.forEach(item => {
         const title = item.column_values.find(c => c.id === 'text_mkrk14cd')?.text || '';
         const description = item.column_values.find(c => c.id === 'long_text_mkrkk7a')?.text || '';
@@ -712,6 +718,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log("DOM is ready, script is running!");
 
+    //Check current date and time to determine if we should allow the script to run (only during working hours)
+    const now = new Date();
+    const currentHour = now.getHours(); 
+    const currentDay = now.toLocaleString('en-US', { weekday: 'long' });
+
+    if ((currentHour <= workingHours.start || currentHour >= workingHours.end) || !workingHours.daysOfTheWeek.includes(currentDay)) {
+        document.getElementById('dashboard-header-text').innerText = 'Dashboard Unavailable (Outside of Working Hours)';
+        document.getElementById('sla-value').innerText = '';
+        document.getElementsByClassName('sla-label')[0].innerText = '';
+        console.log("Outside of working hours, dashboard will not load.");
+        return;
+    }
+
     const currentPage = window.location.pathname;
     //console.log(currentPage);
     const queryString = window.location.search;
@@ -729,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('resize', () => {
     // Re-run the word cloud update when window changes size
-    if (currentWordCounts) { 
-        updateWordCloud(currentWordCounts); 
+    if (wordCounts) { 
+        updateWordCloud(wordCounts); 
     }
 });
