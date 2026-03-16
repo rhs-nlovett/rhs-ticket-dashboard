@@ -1,7 +1,7 @@
 let slaChart, statusChart, locationChart, urgencyChart, userChart, wordCloudChart, wordCounts;
 
 const workingHours = {
-    start: 15, // 7 AM
+    start: 7, // 7 AM
     end: 18,   // 6 PM
     daysOfTheWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] // Monday to Friday
 }
