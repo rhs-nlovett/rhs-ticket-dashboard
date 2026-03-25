@@ -13,6 +13,9 @@ async function fetchTickets() {
                 items {
                     id
                     name
+                    group {
+                        id
+                    }
                     column_values {
                         id
                         text
@@ -39,7 +42,7 @@ async function fetchTickets() {
         });
 
         const data = await response.json();
-        //console.log(data)
+        console.log(data)
         data.data.boards.forEach(board => {
             renderTickets(board, board.items_page.items);
         });
@@ -90,6 +93,13 @@ function renderTickets(board, items) {
         
 
         if (board.id === TICKET_BOARDS['Pending']) {
+            const declinedGroupId = 'group_mkrjc2sr';
+            const isDeclinedTicket = item.group.id === declinedGroupId;
+
+
+            if (isDeclinedTicket)
+                return; // Skip declined tickets
+
             title = getVal('short_text3w4arvwz');
             description = getVal('long_textemtsmlp4');
             location = getVal('color_mksqdz71');
