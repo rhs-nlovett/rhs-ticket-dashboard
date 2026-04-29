@@ -73,7 +73,7 @@ function renderTickets(board, items) {
         const statusText = statusCol ? statusCol.text : '';
 
         // 2. FILTER: Skip this iteration if the ticket is marked 'Done'
-        if (statusText === 'Done') {
+        if (statusText === 'Completed' || statusText === 'Done') {
             return; // Move to the next item in the loop
         }
 

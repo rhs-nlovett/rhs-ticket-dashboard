@@ -388,7 +388,7 @@ function setupCharts(boardName) {
 
     const statusData = {
         // These represent the different status labels on your monday board
-        labels: ['Done', 'In Progress', 'Overdue', 'Not Started'], 
+        labels: ['Completed', 'In Progress', 'Overdue', 'Not Started'], 
         
         datasets: [{
             label: 'Ticket Status',
@@ -590,7 +590,7 @@ function displayReportData(board, items) {
         //const description = item.column_values.find(c => c.id === 'long_text_mkrkk7a')?.text;
 
         // 1. Counters for KPIs
-        if (status === 'Done') stats.completed++;
+        if (status === 'Completed' || status === 'Done') stats.completed++;
         else if (status === 'Overdue') stats.overdue++;
         else if (status === 'In Progress') stats.inProgress++;
         else stats.open++;
