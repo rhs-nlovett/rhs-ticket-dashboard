@@ -114,19 +114,19 @@
                                 let ptoStart = eventStart > businessStart ? eventStart : businessStart;
                                 let ptoEnd = eventEnd < businessEnd ? eventEnd : businessEnd;
                                 calculatedHours = Math.max(0, (ptoEnd - ptoStart) / 36e5);
-                                if (calculatedHours > 5.0) calculatedHours -= 1.0; 
+                                if (calculatedHours > 8.0) calculatedHours -= 1.0; 
                             } 
                             else if (startStr === targetDayStr) {
                                 // First day of a multi-day trip
                                 let ptoStart = eventStart > businessStart ? eventStart : businessStart;
                                 calculatedHours = Math.max(0, (businessEnd - ptoStart) / 36e5);
-                                if (calculatedHours > 5.0) calculatedHours -= 1.0; 
+                                if (calculatedHours > 8.0) calculatedHours -= 1.0; 
                             } 
                             else if (endStr === targetDayStr) {
                                 // Last day of a multi-day trip
                                 let ptoEnd = eventEnd < businessEnd ? eventEnd : businessEnd;
                                 calculatedHours = Math.max(0, (ptoEnd - businessStart) / 36e5);
-                                if (calculatedHours > 5.0) calculatedHours -= 1.0; 
+                                if (calculatedHours > 8.0) calculatedHours -= 1.0; 
                             }
 
                             // Final safety caps
