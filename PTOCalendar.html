@@ -48,6 +48,7 @@
         async function updateSignageGrid() {
             try {
                 const response = await axios.get(WORKER_ENDPOINT);
+                console.log("Response data:", response.data);
                 const events = response.data;
                 
                 const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
