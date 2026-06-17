@@ -1,171 +1,235 @@
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 0.5em; /* Creates breathing room above the grid */
+  width: 100%;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 0;
+  /* A soft, icy-white glow to match the glassmorphism theme */
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2); 
+}
+
+.dashboard-wrapper {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-auto-rows: 240px;
+  gap: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 :root {
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-muted: #777777;
-            --border-color: #e1e4e8;
-            
-            /* PTO Type Colors */
-            --vacation: #4ea8de;
-            --vacation-light: #eef7fc;
-            --sick: #560bad;
-            --sick-light: #f5eeff;
-            --personal: #ffb703;
-            --personal-light: #fffcf0;
-        }
+  --bg-dark: #0f172a; /* Deep slate */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+body {
+  background: radial-gradient(circle at top left, #1e1b4b, var(--bg-dark));
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+/* Glassmorphism Panel Base */
+.bento-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
 
-        /* Main Calendar Container (Takes up full width now) */
-        .calendar-container {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
+.bento-panel h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* Ensure the canvas doesn't blow out of proportion */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1; /* This forces the chart to fill the available space in the taller box */
+  min-height: 0; /* Fixes a common flexbox/canvas overflow bug */
+}
 
-        .month-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #1e293b;
-        }
+/* --- Bento Grid Mapping --- */
+.kpi-cluster { 
+  grid-column: span 3; 
+  grid-row: span 2; 
+  display: grid; 
+  grid-template-rows: repeat(4, 1fr); 
+  gap: 1rem; 
+  background: transparent; border: none; box-shadow: none; padding: 0;
+}
+.hero-chart { 
+  grid-column: span 4; /* Spanning 2/5 is roughly 25-30% smaller than 2/4 */
+  grid-row: span 2;
+  
+  /* Centering Logic */
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+}
 
-        .subtitle {
-            font-size: 1rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
+.wide-chart { grid-column: span 2; grid-row: span 1; }
 
-        /* Weekly Layout Grid - Modified to 5 columns */
-        .weekly-view-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border-color);
-            padding: 20px;
-        }
+/* KPI Styling */
+.kpi-glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  backdrop-filter: blur(8px);
+}
 
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 Columns for Mon-Fri */
-            gap: 16px;
-        }
+.kpi-glass span { font-weight: 300; font-size: 1.2rem; }
+.kpi-glass h2 { font-size: 2.5rem; margin: 0; }
 
-        .day-column {
-            background-color: #fafafa;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            min-height: 450px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding: 16px;
-        }
+/* Neon Accents */
+.neon-blue h2 { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+.neon-purple h2 { color: #c084fc; text-shadow: 0 0 10px rgba(192, 132, 252, 0.5); }
+.neon-red h2 { color: #f43f5e; text-shadow: 0 0 15px rgba(244, 63, 94, 0.8); }
+.neon-green h2 { color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.5); }
 
-        /* Highlight Current Day wrapper */
-        .day-column.today {
-            background-color: #fff;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 1px #3b82f6;
-        }
+/* Animation for urgency */
+.pulse { animation: pulse-glow 2s infinite; }
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+}
 
-        .day-header {
-            text-align: center;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 4px;
-        }
+.donut-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -40%); /* Slight vertical offset for visual balance */
+  text-align: center;
+  pointer-events: none; /* Allows mouse to still interact with the chart behind it */
+}
 
-        .today .day-header {
-            border-bottom-color: #3b82f6;
-        }
+#sla-value {
+  display: block;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #34d399; /* Neon Green */
+  text-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
+  line-height: 1;
+}
 
-        .day-name {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.sla-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
 
-        .today .day-name {
-            color: #3b82f6;
-        }
+/* Bottom Row: The Wide Bars */
+/* This now takes up exactly 5 out of 10 columns (50% width) */
+.user-bar-panel { 
+  grid-column: span 3; 
+  /* If 240px isn't enough, we can force these to span 1.5 rows or set a min-height */
+  min-height: 240px; 
+  display: flex;
+  flex-direction: column;
+  grid-row: span 1; 
+}
 
-        .day-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-top: 2px;
-        }
+/* This takes up the remaining 5 columns */
+.urgency-bar-panel { 
+  grid-column: span 3; /* Increased from 5 to 7 (70% width) */
+  grid-row: span 1; 
+  min-height: 240px; /* Extra height to prevent cutoff */
+}
 
-        /* PTO Event Labels */
-        .pto-event {
-            font-size: 0.85rem;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: 600;
-            border-left: 4px solid transparent;
-            line-height: 1.4;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
+.small-chart {
+    grid-column: span 3;
+    grid-row: span 1;
+    min-height: 190px; /* The "Goldilocks" height */
+    display: flex;
+    flex-direction: column;
+}
 
-        .pto-event .hours-stamp {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 400;
-            opacity: 0.85;
-            margin-top: 4px;
-        }
+.small-chart .chart-container {
+  padding: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 55%; /* Leaves a little room for the title */
+  flex: 1;
+  position: relative;
+}
 
-        .pto-vacation {
-            background-color: var(--vacation-light);
-            color: #0077b6;
-            border-left-color: var(--vacation);
-        }
+.frequent-topics-panel {
+    grid-column: span 4;
+    grid-row: span 1;
+    min-height: 240px;
+}
 
-        .pto-sick {
-            background-color: var(--sick-light);
-            color: var(--sick);
-            border-left-color: var(--sick);
-        }
+.word-cloud-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    overflow: hidden;
+}
 
-        .pto-personal {
-            background-color: var(--personal-light);
-            color: #b7791f;
-            border-left-color: var(--personal);
-        }
+.cloud-word {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 0.3s ease;
+    cursor: default;
+    text-transform: uppercase;
+}
 
-        /* Helper for an empty day placeholder text */
-        .no-leaves {
-            font-size: 0.8rem;
-            color: #cbd5e1;
-            text-align: center;
-            margin-top: auto;
-            margin-bottom: auto;
-            font-style: italic;
-        }
+.cloud-word:hover {
+    transform: scale(1.2);
+    filter: brightness(1.2);
+    z-index: 10;
+}
+
+.cloud-word.vertical {
+    writing-mode: vertical-rl; /* This keeps the text readable vertically */
+    transform: rotate(180deg); /* Flips it to read bottom-to-top, optional */
+    margin: 0 0px;
+}
+
+.word-cloud-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center; /* Centers items vertically in their row */
+    justify-content: center;
+    gap: 15px; /* Increase gap slightly for rotated words */
+}
