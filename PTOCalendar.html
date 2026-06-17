@@ -6,7 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a; /* Optimized deep dark blue background for digital displays */
+            --bg-color: #0f172a; 
             --card-bg: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -38,12 +38,22 @@
             <h1 id="week-range">Rural Health Services - Weekly PTO Tracker</h1>
         </header>
         <div class="calendar-grid" id="calendar-grid-target">
-            </div>
+        </div>
     </div>
 
     <script>
-        // Replace with your actual deployed Cloudflare Worker URL
         const WORKER_ENDPOINT = "https://pto-worker.nlovett.workers.dev"; 
+
+        // Timezone-agnostic parsing (interprets the string exactly as written by Microsoft)
+        function parseISOToLocalDate(isoString) {
+            const parts = isoString.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+            if (!parts) return new Date(isoString); 
+            return new Date(parts[1], parts[2] - 1, parts[3], parts[4], parts[5], 0, 0);
+        }
+
+        function toDateString(dateObj) {
+            return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+        }
 
         async function updateSignageGrid() {
             try {
@@ -54,18 +64,31 @@
                 const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
                 let gridHTML = '';
 
-                // Generate accurate date snapshots starting at Monday of this current week
-                let current = new Date();
-                let startOfWeek = new Date(current.setDate(current.getDate() - current.getDay() + 1)); 
+                // Generate baseline calendar starting at current Monday
+                let todaySystem = new Date();
+                let currentMonday = new Date(todaySystem.setDate(todaySystem.getDate() - todaySystem.getDay() + 1));
 
                 daysOfWeek.forEach((dayName, index) => {
-                    let dayDate = new Date(startOfWeek);
-                    dayDate.setDate(startOfWeek.getDate() + index);
+                    let dayDate = new Date(currentMonday);
+                    dayDate.setDate(currentMonday.getDate() + index);
                     
-                    // Match events whose start date falls on this calendar day column
+                    let targetDayStr = toDateString(dayDate);
+                    
+                    // Fixed shift anchors (8:00 AM - 5:00 PM)
+                    let businessStart = new Date(dayDate);
+                    businessStart.setHours(8, 0, 0, 0);
+                    let businessEnd = new Date(dayDate);
+                    businessEnd.setHours(17, 0, 0, 0);
+                    
+                    // Overlap Filter
                     let dayEvents = events.filter(e => {
-                        let eventStart = new Date(e.start.dateTime).toDateString();
-                        return eventStart === dayDate.toDateString();
+                        let eventStart = parseISOToLocalDate(e.start.dateTime);
+                        let eventEnd = parseISOToLocalDate(e.end.dateTime);
+                        
+                        let dayStartCompare = new Date(dayDate); dayStartCompare.setHours(0,0,0,0);
+                        let dayEndCompare = new Date(dayDate); dayEndCompare.setHours(23,59,59,999);
+                        
+                        return eventStart <= dayEndCompare && eventEnd >= dayStartCompare;
                     });
 
                     let eventsHTML = '';
@@ -73,19 +96,54 @@
                         eventsHTML = `<div class="no-leaves">No PTO Scheduled</div>`;
                     } else {
                         dayEvents.forEach(ev => {
-                            // Calculate total duration hours
-                            let durationHrs = Math.abs(new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 36e5;
+                            let eventStart = parseISOToLocalDate(ev.start.dateTime);
+                            let eventEnd = parseISOToLocalDate(ev.end.dateTime);
                             
-                            // Categorize dynamic styling classes based on keyword parsing
+                            let startStr = toDateString(eventStart);
+                            let endStr = toDateString(eventEnd);
+                            
+                            let calculatedHours = 0;
+
+                            // Determine day context and chunk work window hours
+                            if (startStr !== targetDayStr && endStr !== targetDayStr) {
+                                // Full middle day of a multi-day trip
+                                calculatedHours = 8.0; 
+                            } 
+                            else if (startStr === targetDayStr && endStr === targetDayStr) {
+                                // Single-day event contained within today
+                                let ptoStart = eventStart > businessStart ? eventStart : businessStart;
+                                let ptoEnd = eventEnd < businessEnd ? eventEnd : businessEnd;
+                                calculatedHours = Math.max(0, (ptoEnd - ptoStart) / 36e5);
+                                if (calculatedHours > 5.0) calculatedHours -= 1.0; 
+                            } 
+                            else if (startStr === targetDayStr) {
+                                // First day of a multi-day trip
+                                let ptoStart = eventStart > businessStart ? eventStart : businessStart;
+                                calculatedHours = Math.max(0, (businessEnd - ptoStart) / 36e5);
+                                if (calculatedHours > 5.0) calculatedHours -= 1.0; 
+                            } 
+                            else if (endStr === targetDayStr) {
+                                // Last day of a multi-day trip
+                                let ptoEnd = eventEnd < businessEnd ? eventEnd : businessEnd;
+                                calculatedHours = Math.max(0, (ptoEnd - businessStart) / 36e5);
+                                if (calculatedHours > 5.0) calculatedHours -= 1.0; 
+                            }
+
+                            // Final safety caps
+                            if (calculatedHours > 8.0) calculatedHours = 8.0;
+                            if (calculatedHours < 0) calculatedHours = 0;
+
                             let subjectLower = ev.subject.toLowerCase();
                             let classType = 'vacation';
                             if (subjectLower.includes('sick') || subjectLower.includes('medical')) classType = 'sick';
-                            if (subjectLower.includes('personal') || subjectLower.includes('floating')) classType = 'personal';
+                            if (subjectLower.includes('PTO') || subjectLower.includes('PTO')) classType = 'personal';
+
+                            if (calculatedHours <= 0) return;
                             
                             eventsHTML += `
                                 <div class="pto-event ${classType}">
                                     ${ev.subject}
-                                    <span class="hours-stamp">${durationHrs.toFixed(1)} Hours</span>
+                                    <span class="hours-stamp">${calculatedHours.toFixed(1)} Hours</span>
                                 </div>
                             `;
                         });
@@ -108,8 +166,6 @@
             }
         }
 
-        // Check for calendar adjustments from the Worker every 10 minutes
-        //setInterval(updateSignageGrid, 10 * 60 * 1000);
         updateSignageGrid();
     </script>
 </body>
