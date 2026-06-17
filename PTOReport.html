@@ -1,4 +1,11 @@
-:root {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team PTO - Weekly View</title>
+    <style>
+        :root {
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-main: #333333;
@@ -169,3 +176,13 @@
             margin-bottom: auto;
             font-style: italic;
         }
+    </style>
+</head>
+<body>
+    <div id="pto-calendar-root" class="calendar-container"></div>
+    <script src="pto.script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.13.2/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qs@6.15.2/dist/qs.min.js"></script>
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+</body>
+</html>

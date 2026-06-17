@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signage PTO Calendar</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a; /* Optimized deep dark blue background for digital displays */
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --vacation: #38bdf8;
+            --sick: #f43f5e;
+            --personal: #fbbf24;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 40px; display: flex; height: 100vh; overflow: hidden; }
+        .calendar-container { flex: 1; display: flex; flex-direction: column; gap: 24px; width: 100%; }
+        .calendar-header h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.5px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; flex: 1; min-height: 0; }
+        .day-column { background-color: var(--card-bg); border: 2px solid var(--border-color); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .day-header { text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; }
+        .day-name { font-weight: 700; font-size: 1.3rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
+        .day-number { font-size: 2.5rem; font-weight: 800; margin-top: 4px; }
+        .pto-event { padding: 16px; border-radius: 10px; font-weight: 700; font-size: 1.2rem; border-left: 6px solid var(--vacation); background: rgba(56, 189, 248, 0.08); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+        .pto-event.sick { border-left-color: var(--sick); background: rgba(244, 63, 94, 0.08); }
+        .pto-event.personal { border-left-color: var(--personal); background: rgba(251, 191, 36, 0.08); }
+        .hours-stamp { display: block; font-size: 1rem; font-weight: 400; color: var(--text-muted); margin-top: 6px; }
+        .no-leaves { font-size: 1.1rem; color: #475569; text-align: center; margin: auto 0; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="calendar-container">
+        <header class="calendar-header">
+            <h1 id="week-range">Weekly PTO Tracker</h1>
+        </header>
+        <div class="calendar-grid" id="calendar-grid-target">
+            </div>
+    </div>
+
+    <script>
+        // Replace with your actual deployed Cloudflare Worker URL
+        const WORKER_ENDPOINT = "https://pto-worker.nlovett.workers.dev"; 
+
+        async function updateSignageGrid() {
+            try {
+                const response = await axios.get(WORKER_ENDPOINT);
+                const events = response.data;
+                
+                const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+                let gridHTML = '';
+
+                // Generate accurate date snapshots starting at Monday of this current week
+                let current = new Date();
+                let startOfWeek = new Date(current.setDate(current.getDate() - current.getDay() + 1)); 
+
+                daysOfWeek.forEach((dayName, index) => {
+                    let dayDate = new Date(startOfWeek);
+                    dayDate.setDate(startOfWeek.getDate() + index);
+                    
+                    // Match events whose start date falls on this calendar day column
+                    let dayEvents = events.filter(e => {
+                        let eventStart = new Date(e.start.dateTime).toDateString();
+                        return eventStart === dayDate.toDateString();
+                    });
+
+                    let eventsHTML = '';
+                    if (dayEvents.length === 0) {
+                        eventsHTML = `<div class="no-leaves">All Hands Available</div>`;
+                    } else {
+                        dayEvents.forEach(ev => {
+                            // Calculate total duration hours
+                            let durationHrs = Math.abs(new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 36e5;
+                            
+                            // Categorize dynamic styling classes based on keyword parsing
+                            let subjectLower = ev.subject.toLowerCase();
+                            let classType = 'vacation';
+                            if (subjectLower.includes('sick') || subjectLower.includes('medical')) classType = 'sick';
+                            if (subjectLower.includes('personal') || subjectLower.includes('floating')) classType = 'personal';
+                            
+                            eventsHTML += `
+                                <div class="pto-event ${classType}">
+                                    ${ev.subject}
+                                    <span class="hours-stamp">${durationHrs.toFixed(1)} Hours</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    gridHTML += `
+                        <div class="day-column">
+                            <div class="day-header">
+                                <div class="day-name">${dayName}</div>
+                                <div class="day-number">${dayDate.getDate()}</div>
+                            </div>
+                            ${eventsHTML}
+                        </div>
+                    `;
+                });
+
+                document.getElementById('calendar-grid-target').innerHTML = gridHTML;
+            } catch (err) {
+                console.error("Signage update routine dropped:", err);
+            }
+        }
+
+        // Check for calendar adjustments from the Worker every 10 minutes
+        //setInterval(updateSignageGrid, 10 * 60 * 1000);
+        updateSignageGrid();
+    </script>
+</body>
+</html>
