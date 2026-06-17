@@ -35,7 +35,7 @@
 
     <div class="calendar-container">
         <header class="calendar-header">
-            <h1 id="week-range">Weekly PTO Tracker</h1>
+            <h1 id="week-range">Rural Health Services - Weekly PTO Tracker</h1>
         </header>
         <div class="calendar-grid" id="calendar-grid-target">
             </div>
@@ -69,7 +69,7 @@
 
                     let eventsHTML = '';
                     if (dayEvents.length === 0) {
-                        eventsHTML = `<div class="no-leaves">All Hands Available</div>`;
+                        eventsHTML = `<div class="no-leaves">No PTO Scheduled</div>`;
                     } else {
                         dayEvents.forEach(ev => {
                             // Calculate total duration hours
